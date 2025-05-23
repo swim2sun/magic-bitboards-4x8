@@ -3,8 +3,8 @@ use types::*;
 include!(concat!(env!("OUT_DIR"), "/magics.rs"));
 
 struct MagicEntry {
-    mask: u64,
-    magic: u64,
+    mask: u32,
+    magic: u32,
     shift: u8,
     offset: u32,
 }
@@ -28,14 +28,14 @@ fn get_bishop_moves(square: Square, blockers: BitBoard) -> BitBoard {
 
 fn main() {
     let blockers = bitboard! {
-        . . . X . . . X
-        . . . . . . . .
-        . . . X . . . .
-        . . . . . . . .
-        . . . . . . . X
-        . . X . . . . .
-        . . . X . X . .
-        . . . . . . . .
+        . . . X 
+        . . . . 
+        . . . X 
+        . . . . 
+        . . . . 
+        . . X . 
+        . . . X 
+        . . . . 
     };
     let square = Square::D4;
     println!("Blockers: {:#?}", blockers);

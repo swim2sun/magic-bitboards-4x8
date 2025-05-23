@@ -59,7 +59,7 @@ fn make_table(
 }
 
 fn write_table(name: &str, table: &[BitBoard], out: &mut impl Write) -> std::io::Result<()> {
-    write!(out, "const {}_MOVES: &[u64; {}] = &[", name, table.len())?;
+    write!(out, "const {}_MOVES: &[u32; {}] = &[", name, table.len())?;
     for entry in table {
         write!(out, "{},", entry.0)?;
     }

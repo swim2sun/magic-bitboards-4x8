@@ -48,7 +48,7 @@ const BISHOP: Slider = Slider {
 
 struct MagicEntry {
     mask: BitBoard,
-    magic: u64,
+    magic: u32,
     shift: u8,
 }
 
@@ -68,13 +68,13 @@ fn find_magic(
     rng: &mut Rng
 ) -> (MagicEntry, Vec<BitBoard>) {
     let mask = slider.relevant_blockers(square);
-    let shift = 64 - index_bits;
+    let shift = 32 - index_bits;
     loop {
-        // Magics require a low number of active bits, so we AND
-        // by two more random values to cut down on the bits set.
-        let magic = rng.next_u64() & rng.next_u64() & rng.next_u64();
+        let magic = rng.next_u32();
         let magic_entry = MagicEntry { mask, magic, shift };
+
         if let Ok(table) = try_make_table(slider, square, &magic_entry) {
+            println!("[find_magic]   Square {:?}: Found magic 0x{:08X} after {} attempts!", square, magic, attempts);
             return (magic_entry, table);
         }
     }
@@ -89,7 +89,7 @@ fn try_make_table(
     square: Square,
     magic_entry: &MagicEntry,
 ) -> Result<Vec<BitBoard>, TableFillError> {
-    let index_bits = 64 - magic_entry.shift;
+    let index_bits = 32 - magic_entry.shift;
     let mut table = vec![BitBoard::EMPTY; 1 << index_bits];
     // Iterate all configurations of blockers
     let mut blockers = BitBoard::EMPTY;
@@ -127,7 +127,7 @@ fn find_and_print_all_magics(slider: &Slider, slider_name: &str, rng: &mut Rng) 
         // In the final move generator, each table is concatenated into one contiguous table
         // for convenience, so an offset is added to denote the start of each segment.
         println!(
-            "    MagicEntry {{ mask: 0x{:016X}, magic: 0x{:016X}, shift: {}, offset: {} }},",
+            "    MagicEntry {{ mask: 0x{:08X}, magic: 0x{:08X}, shift: {}, offset: {} }},",
             entry.mask.0, entry.magic, entry.shift, total_table_size
         );
         total_table_size += table.len();
