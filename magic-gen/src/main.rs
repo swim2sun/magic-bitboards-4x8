@@ -15,11 +15,30 @@ impl Slider {
             while !blockers.has(ray) {
                 if let Some(shifted) = ray.try_offset(df, dr) {
                     ray = shifted;
-                    moves |= ray.bitboard();
                 } else {
                     break;
                 }
             }
+            if ray == square || !blockers.has(ray) {
+                continue;
+            }
+            let blocker = ray;
+            if let Some(shifted) = ray.try_offset(df, dr) {
+                ray = shifted;
+            } else {
+                continue;
+            }
+            while !blockers.has(ray) {
+                if let Some(shifted) = ray.try_offset(df, dr) {
+                    ray = shifted;
+                } else {
+                    break;
+                }
+            }
+            if ray == blocker || !blockers.has(ray) {
+                continue;
+            }
+            moves |= ray.bitboard();
         }
         moves
     }
@@ -74,7 +93,7 @@ fn find_magic(
         let magic_entry = MagicEntry { mask, magic, shift };
 
         if let Ok(table) = try_make_table(slider, square, &magic_entry) {
-            println!("[find_magic]   Square {:?}: Found magic 0x{:08X} after {} attempts!", square, magic, attempts);
+            // println!("[find_magic]   Square {:?}: Found magic 0x{:08X}!", square, magic);
             return (magic_entry, table);
         }
     }
@@ -142,5 +161,83 @@ fn find_and_print_all_magics(slider: &Slider, slider_name: &str, rng: &mut Rng) 
 fn main() {
     let mut rng = Rng::default();
     find_and_print_all_magics(&ROOK, "ROOK", &mut rng);
-    find_and_print_all_magics(&BISHOP, "BISHOP", &mut rng);
+    // find_and_print_all_magics(&BISHOP, "BISHOP", &mut rng);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn bitboard_from_squares(squares: &[Square]) -> BitBoard {
+        squares.iter().fold(BitBoard::EMPTY, |b, &s| b | s.bitboard())
+    }
+
+    #[test]
+    fn test_rook_moves_empty_board() {
+        let square = Square::D4;
+        let blockers = BitBoard::EMPTY;
+        let moves = ROOK.moves(square, blockers);
+        println!("moves:\n{:#?}", moves);
+        let expected_moves = BitBoard::EMPTY;
+        assert_eq!(moves, expected_moves);
+    }
+    
+    #[test]
+    fn test_rook_moves_with_blockers() {
+        let square = Square::D4;
+        let blockers = bitboard! {
+            . . . X 
+            . . . . 
+            . . . X 
+            . . . . 
+            . . . . 
+            . . X . 
+            . . . X 
+            . . . .  
+        };
+        let moves = ROOK.moves(square, blockers);
+        println!("moves:\n{:#?}", moves);
+
+        let expected_moves = bitboard! {
+            . . . X 
+            . . . . 
+            . . . . 
+            . . . . 
+            . . . . 
+            . . . . 
+            . . . . 
+            . . . .  
+        };
+        assert_eq!(moves, expected_moves);
+    }
+
+    #[test]
+    fn test_rook_moves_with_blockers2() {
+        let square = Square::D3;
+        let blockers = bitboard! {
+            . . . X 
+            . . . . 
+            . . . X 
+            . . . . 
+            . . . . 
+            X . X . 
+            . . . X 
+            . . . .  
+        };
+        let moves = ROOK.moves(square, blockers);
+        println!("moves:\n{:#?}", moves);
+
+        let expected_moves = bitboard! {
+            . . . X 
+            . . . . 
+            . . . . 
+            . . . . 
+            . . . . 
+            X . . . 
+            . . . . 
+            . . . .  
+        };
+        assert_eq!(moves, expected_moves);
+    }
+    
 }

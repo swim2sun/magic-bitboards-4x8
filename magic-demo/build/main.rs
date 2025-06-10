@@ -23,11 +23,30 @@ fn slider_moves(slider_deltas: &[(i8, i8)], square: Square, blockers: BitBoard) 
         while !blockers.has(ray) {
             if let Some(shifted) = ray.try_offset(df, dr) {
                 ray = shifted;
-                moves |= ray.bitboard();
             } else {
                 break;
             }
         }
+        if ray == square || !blockers.has(ray) {
+            continue;
+        }
+        let blocker = ray;
+        if let Some(shifted) = ray.try_offset(df, dr) {
+            ray = shifted;
+        } else {
+            continue;
+        }
+        while !blockers.has(ray) {
+            if let Some(shifted) = ray.try_offset(df, dr) {
+                ray = shifted;
+            } else {
+                break;
+            }
+        }
+        if ray == blocker || !blockers.has(ray) {
+            continue;
+        }
+        moves |= ray.bitboard();
     }
     moves
 }

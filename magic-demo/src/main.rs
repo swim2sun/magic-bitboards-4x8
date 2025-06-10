@@ -41,5 +41,5 @@ fn main() {
     println!("Blockers: {:#?}", blockers);
     println!("Square: {:?}", square);
     println!("Rook moves: {:#?}", get_rook_moves(square, blockers));
-    println!("Bishop moves: {:#?}", get_bishop_moves(square, blockers));
+    // println!("Bishop moves: {:#?}", get_bishop_moves(square, blockers));
 }
