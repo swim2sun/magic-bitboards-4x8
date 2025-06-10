@@ -74,7 +74,6 @@ fn find_magic(
         let magic_entry = MagicEntry { mask, magic, shift };
 
         if let Ok(table) = try_make_table(slider, square, &magic_entry) {
-            println!("[find_magic]   Square {:?}: Found magic 0x{:08X} after {} attempts!", square, magic, attempts);
             return (magic_entry, table);
         }
     }
